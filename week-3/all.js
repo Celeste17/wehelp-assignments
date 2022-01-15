@@ -29,10 +29,9 @@ xhr.onload = function () {
             let firstFilePosition = file.toLowerCase().indexOf('.jpg') + 4
             console.log(file.substring(0, firstFilePosition))
             showAttraction(item.stitle, file.substring(0, firstFilePosition))
-        else {
-            
-        }
+        } else {
 
+        }
     })
 
 }
