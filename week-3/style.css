@@ -155,10 +155,12 @@ img {
 .photo h2 {
     background-color: #fff;
     /* width: 280px; */
-    font-size: 20px;
+    font-size: 15px;
     padding: 10px 0px;
     text-align: center;
 
+    height: auto;
+    
 }
 
 .footer {

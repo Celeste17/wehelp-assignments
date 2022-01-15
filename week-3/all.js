@@ -20,6 +20,7 @@ xhr.onload = function () {
     */
 
     allDetail.forEach(function (item, index) {
+        // if (index < 8) {
         // console.log(item, index)
         //景點名稱
         console.log(item.stitle)
@@ -28,6 +29,9 @@ xhr.onload = function () {
         let firstFilePosition = file.toLowerCase().indexOf('.jpg') + 4
         console.log(file.substring(0, firstFilePosition))
         showAttraction(item.stitle, file.substring(0, firstFilePosition))
+        // } else {
+
+        // }
     })
 
 }
