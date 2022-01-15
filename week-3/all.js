@@ -20,18 +20,19 @@ xhr.onload = function () {
     */
 
     allDetail.forEach(function (item, index) {
-        // if (index < 8) {
-        // console.log(item, index)
-        //景點名稱
-        console.log(item.stitle)
-        //景點圖片
-        let file = item.file
-        let firstFilePosition = file.toLowerCase().indexOf('.jpg') + 4
-        console.log(file.substring(0, firstFilePosition))
-        showAttraction(item.stitle, file.substring(0, firstFilePosition))
-        // } else {
+        if (index < 8) {
+            // console.log(item, index)
+            //景點名稱
+            console.log(item.stitle)
+            //景點圖片
+            let file = item.file
+            let firstFilePosition = file.toLowerCase().indexOf('.jpg') + 4
+            console.log(file.substring(0, firstFilePosition))
+            showAttraction(item.stitle, file.substring(0, firstFilePosition))
+        else {
+            
+        }
 
-        // }
     })
 
 }
