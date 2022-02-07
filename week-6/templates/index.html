@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入首頁</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}"> -->
+</head>
+
+<body>
+    <h1>歡迎光臨，請註冊登入系統</h1>
+    <div class="content">
+        <h3>註冊帳號</h3>
+        <form action="/signup" method="POST">
+            <div class="input">
+                姓名 <input type="text" name="newName" required>
+            </div>
+            <div class="input">
+                帳號 <input type="text" name="newAccount" required>
+            </div>
+            <div class="input">
+                密碼 <input type="password" name="newPassword" required>
+            </div>
+            <button onclick="alertSignUp()" name="alertSignUp">註冊</button>
+        </form>
+
+        <hr style="background-color: gray; height:1px; border:none;" />
+
+        <h3>登入系統</h3>
+        <form action="/signin" method="POST">
+            <div class="input">
+                帳號 <input type="text" name="account">
+            </div>
+            <div class="input">
+                密碼 <input type="password" name="password">
+            </div>
+            <button>登入</button>
+        </form>
+    </div>
+</body>
+<!-- <script src="all.js"></script> -->
+<!-- <script>
+    function alertSignUp() {
+        alert("確定送出資料.");
+    }
+</script> -->
+
+</html>
