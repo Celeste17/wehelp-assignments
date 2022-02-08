@@ -25,9 +25,9 @@ cursor = mydb.cursor()
 #     print(x)
 
 # SQL 查詢語句
-def sqlQueryAll(sql):
+def sqlQueryWebsite(sql):
     cursor.execute("USE website")
-    # sql: str # = "SELECT * FROM member"
+    # sql: str = "SELECT * FROM member"
     try:
         # 執行SQL語句
         cursor.execute(sql)
@@ -50,7 +50,7 @@ def index():
     # cursor.execute(sql)
     # result = cursor.fetchall()    #fetchall返回查詢的全部資料， 返回元組型別資料
     # # print(result)
-    sqlQueryAll("SELECT * FROM member")
+    sqlQueryWebsite("SELECT * FROM member")
 
     return render_template("index.html")
 
@@ -62,35 +62,41 @@ def signup():
     newPassword = request.form["newPassword"]
 
     # 重複註冊
-    if sqlQueryAll("SELECT * FROM member") != False:
-        for x in sqlQueryAll("SELECT * FROM member"):
-            if newAccount == x[2]:
-                return redirect("/error/?message=帳號已被註冊")
-
-    # 成功註冊
-    sql = "INSERT INTO member(name, username, password) VALUES(%s, %s, %s)"
-    val = (newName, newAccount, newPassword)
-    cursor.execute(sql, val)
-    mydb.commit()
-    print(cursor.rowcount, "新增資料成功")
-    return redirect("/")
-
+    # if sqlQueryWebsite("SELECT * FROM member") != False:
+    #     for x in sqlQueryWebsite("SELECT * FROM member"):
+    #         if newAccount == x[2]:
+    #             return redirect("/error/?message=帳號已被註冊")
+    if sqlQueryWebsite("SELECT * FROM member WHERE username = '" + newAccount + "'"):
+        print("帳號已被註冊")
+        return redirect("/error/?message=帳號已被註冊")
+    else: # 成功註冊
+        print("新的帳號")
+        sql = "INSERT INTO member(name, username, password) VALUES(%s, %s, %s)"
+        val = (newName, newAccount, newPassword)
+        cursor.execute(sql, val)
+        mydb.commit()
+        print(cursor.rowcount, "新增資料成功")
+        return redirect("/")
 
 @app.route("/signin", methods=["POST"])
 def signin():
     account = request.form["account"]
     password = request.form["password"]
     
-    # sqlQueryAll("SELECT * FROM member")
+    # sqlQueryWebsite("SELECT * FROM member")
     # 登入成功
-    if sqlQueryAll("SELECT * FROM member") != False:
-        for x in sqlQueryAll("SELECT * FROM member"):
-            if account == x[2] and password == x[3]:
-                session["status"] = "已登入"
-                session["name"] = str(x[1])
-                return redirect("/member")
-    # 登入失敗
-    if(account == "" or password == ""):
+    # if sqlQueryWebsite("SELECT * FROM member") != False:
+    #     for x in sqlQueryWebsite("SELECT * FROM member"):
+    #         if account == x[2] and password == x[3]:
+    #             session["status"] = "已登入"
+    #             session["name"] = str(x[1])
+    #             return redirect("/member")
+    
+    if sqlQueryWebsite("SELECT * FROM member WHERE username = '"+ account + "'" + " AND password = '" + password +"'"):
+        session["status"] = "已登入"
+        session["name"] = sqlQueryWebsite("SELECT name FROM member WHERE username = '"+ account +"'" + " AND password = '" + password +"'")[0][0]
+        return redirect("/member")
+    elif account == "" or password == "":
         return redirect("/error/?message=請輸入帳號、密碼")
     else:
         return redirect("/error/?message=帳號、或密碼輸入錯誤")
@@ -116,20 +122,9 @@ def signout():
     session["name"] = "未登入"
     return redirect("/")
 
-
-# @app.route("/error/?message=請輸入帳號、密碼")
-# def errorNull():
-#     message="請輸入帳號、密碼"
-#     return render_template("error.html", errorMessages=str(message))
-# @app.route("/error/?message=帳號、或密碼輸入錯誤")
-# def errorWrong():
-#     message="帳號、或密碼輸入錯誤"
-#     return render_template("error.html", errorMessages=str(message))
-
-
-
-
 app.run(port=3000)
 
+# 關閉游標
+cursor.close()
 # 關閉資料庫連線
 mydb.close()
