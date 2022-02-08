@@ -17,7 +17,7 @@ mydb = mysql.connector.connect(
 )
 print(mydb)
 cursor = mydb.cursor()
-result = []
+# result=[]
 
 # # Show db
 # cursor.execute("SHOW DATABASES")
@@ -25,27 +25,33 @@ result = []
 #     print(x)
 
 # SQL 查詢語句
-cursor.execute("USE website")
-sql: str = "SELECT * FROM member"
-try:
-    # 執行SQL語句
-    cursor.execute(sql)
-    # 獲取所有記錄列表 fetchone / fetchall
-    # results = cursor.fetchone() #fetchone只獲取一條資料， 返回元組型別資料
-    # print(results)
-    result = cursor.fetchall()    #fetchall返回查詢的全部資料， 返回元組型別資料
-    print(result)
-except:
-    print("Error: unable to fetch data")
+def sqlQueryAll(sql):
+    cursor.execute("USE website")
+    # sql: str # = "SELECT * FROM member"
+    try:
+        # 執行SQL語句
+        cursor.execute(sql)
+        # 獲取所有記錄列表 fetchone / fetchall
+        # results = cursor.fetchone() #fetchone只獲取一條資料， 返回元組型別資料
+        # print(results)
+        result = cursor.fetchall()    #fetchall返回查詢的全部資料， 返回元組型別資料
+        print(result)
+        return result
+    except:
+        print("Error: unable to fetch data")
+        return False
 
 
 @app.route("/")
 def index():
     # session["status"] = "未登入"
+
     # 重新跑一次資料
-    cursor.execute(sql)
-    result = cursor.fetchall()    #fetchall返回查詢的全部資料， 返回元組型別資料
-    # print(result)
+    # cursor.execute(sql)
+    # result = cursor.fetchall()    #fetchall返回查詢的全部資料， 返回元組型別資料
+    # # print(result)
+    sqlQueryAll("SELECT * FROM member")
+
     return render_template("index.html")
 
 
@@ -54,11 +60,12 @@ def signup():
     newName = request.form["newName"]
     newAccount = request.form["newAccount"]
     newPassword = request.form["newPassword"]
-    
+
     # 重複註冊
-    for x in result:
-        if newAccount == x[2]:
-            return redirect("/error/?message=帳號已被註冊")
+    if sqlQueryAll("SELECT * FROM member") != False:
+        for x in sqlQueryAll("SELECT * FROM member"):
+            if newAccount == x[2]:
+                return redirect("/error/?message=帳號已被註冊")
 
     # 成功註冊
     sql = "INSERT INTO member(name, username, password) VALUES(%s, %s, %s)"
@@ -73,13 +80,15 @@ def signup():
 def signin():
     account = request.form["account"]
     password = request.form["password"]
-
+    
+    # sqlQueryAll("SELECT * FROM member")
     # 登入成功
-    for x in result:
-        if account == x[2] and password == x[3]:
-            session["status"] = "已登入"
-            session["name"] = str(x[1])
-            return redirect("/member")
+    if sqlQueryAll("SELECT * FROM member") != False:
+        for x in sqlQueryAll("SELECT * FROM member"):
+            if account == x[2] and password == x[3]:
+                session["status"] = "已登入"
+                session["name"] = str(x[1])
+                return redirect("/member")
     # 登入失敗
     if(account == "" or password == ""):
         return redirect("/error/?message=請輸入帳號、密碼")
