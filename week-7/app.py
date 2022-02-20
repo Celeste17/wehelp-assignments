@@ -1,12 +1,12 @@
-from flask import Flask   #, url_for
-from flask import request #載入 Request 物件
-from flask import redirect # 載入 redirect 函式
-from flask import render_template # 載入 render_template 函式
-from flask import session
+from flask import Flask, request, redirect, render_template, session 
+from flask import jsonify
+import json
+from flask import Response
 import mysql.connector
 
 app = Flask(__name__,) 
 app.secret_key="celesteSecret" # 設定 Session 密鑰：可以填寫任何字串但不告訴別人
+app.config["JSON_AS_ASCII"] = False # 解決中文亂碼
 
 # 連接 MySQL/MariaDB 資料庫
 mydb = mysql.connector.connect(
@@ -17,24 +17,6 @@ mydb = mysql.connector.connect(
 )
 print(mydb)
 cursor = mydb.cursor()
-# result=[]
-
-# SQL 查詢語句(要用時再使用)
-# def sqlQueryWebsite(sql):
-#     # cursor.execute("USE website")
-#     # sql: str = "SELECT * FROM member"
-#     try:
-#         # 執行SQL語句
-#         cursor.execute(sql)
-#         # 獲取所有記錄列表 fetchone / fetchall
-#         # results = cursor.fetchone() #fetchone只獲取一條資料， 返回元組型別資料
-#         # print(results)
-#         result = cursor.fetchall()    #fetchall返回查詢的全部資料， 返回元組型別資料
-#         print(result)
-#         return result
-#     except:
-#         print("Error: unable to fetch data")
-#         return False
 
 
 @app.route("/")
@@ -69,6 +51,7 @@ def signup():
         print(cursor.rowcount, "新增資料成功")
         return redirect("/")
 
+
 @app.route("/signin", methods=["POST"])
 def signin():
     account = request.form["account"]
@@ -90,6 +73,7 @@ def signin():
     else:
         return redirect("/error/?message=帳號、或密碼輸入錯誤")
 
+
 @app.route("/member")
 def member():
     if session["name"] == False:
@@ -106,6 +90,52 @@ def error():
 def signout():
     session["name"] = False
     return redirect("/")
+
+
+@app.route("/api/members")
+def apiMembers():
+    # sql = "SELECT * FROM member WHERE username = 'test2' "
+    # cursor.execute(sql)
+    username = request.args.get("username","錯誤資料")
+    sql = "SELECT * FROM member WHERE username = %s "
+    val = (username,)  #逗號很重要
+    cursor.execute(sql, val)    
+
+    result = cursor.fetchone()  
+    print(result)  # (2, 'Celeste', 'test1', 'test1', 500, datetime.datetime(2022, 1, 30, 14, 11, 1))
+    if(result):
+        data = {
+            "id" : result[0],
+            "name" : result[1],
+            "username" : result[2]
+        }
+        print(data)  # {'id': 2, 'name': 'Celeste', 'username': 'test1'}
+    else:
+        data = None
+    return jsonify({"data":data}) 
+
+    # try:
+    #     sql = "SELECT * FROM member WHERE username = 'test2' "
+    #     cursor.execute(sql)
+    #     # username = request.args.get("username","錯誤")
+    #     # sql = "SELECT * FROM member WHERE username = %s "
+    #     # val = (username)
+    #     # cursor.execute(sql, val)    
+    #     result = cursor.fetchone()  
+    #     print(result)  # (2, 'Celeste', 'test1', 'test1', 500, datetime.datetime(2022, 1, 30, 14, 11, 1))
+    #     data = {
+    #         "id" : result[0],
+    #         "name" : result[1],
+    #         "username" : result[2]
+    #     }
+    #     print(data)  # {'id': 2, 'name': 'Celeste', 'username': 'test1'}
+    #     return jsonify({"data":data})
+    # except:
+    #     return jsonify({"data":None}) 
+
+
+
+
 
 app.run(port=3000)
 
